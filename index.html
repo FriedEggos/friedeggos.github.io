@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cinemas</title>		
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+    <style>
+        /* Light mode background as requested */
+        body {
+            background-color: #f8f9fa; /* Light grey/off-white */
+            font-family: Arial, sans-serif;
+            padding-top: 56px; /* Space for fixed navbar */
+        }
+        .section-header {
+            color: #0d6efd; /* Bootstrap primary color */
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+        .movie-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%; /* Ensure uniform height in row */
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+        .movie-poster-card {
+            width: 100%;
+            height: 350px; /* Fixed height for card image */
+            object-fit: cover;
+            border-radius: 0.375rem 0.375rem 0 0;
+        }
+        /* Style adjustments for the modal content (from previous work) */
+        .modal-body table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .modal-body th, .modal-body td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+        .modal-body th {
+            background-color: #007BFF;
+            color: white;
+            text-align: left;
+        }
+        .modal-body tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#home">🎬 CineStar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#now-showing">Now Showing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid p-0" id="home">
+        <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                </div>
+            <div class="carousel-inner">
+                </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container my-5" id="now-showing">
+        <h2 class="section-header">Now Showing</h2>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4" id="movie-listings">
+            </div>
+    </div>
+
+    <div class="modal fade" id="movieDetailsModal" tabindex="-1" aria-labelledby="movieDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="movieDetailsModalLabel"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-movie-content">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <img id="modal-poster" src="" alt="Movie Poster" class="movie-poster img-fluid">
+                        </div>
+                        <div class="col-md-8">
+                            <h3>Movie Information</h3>
+                            <table>
+                                <tr><th>Release Date</th><td id="modal-release"></td></tr>
+                                <tr><th>Show Time</th><td id="modal-runtime"></td></tr>
+                                <tr><th>Main Cast (Voice)</th><td id="modal-cast"></td></tr>
+                                <tr><th>Synopsis</th><td class="synopsis" id="modal-synopsis"></td></tr>
+                            </table>
+                            <a id="modal-trailer" href="#" target="_blank" class="btn btn-danger mt-3">Watch Trailer</a>
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Additional Information</h5>
+                            <p class="card-text" id="modal-info"></p>
+                            <a id="modal-website" href="#" target="_blank" class="btn btn-success">Official Website</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalLabel">Contact Us</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="contactForm">
+                        <div class="mb-3">
+                            <label for="contactName" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="contactName" name="name">
+                            <div class="invalid-feedback" id="nameError"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactEmail" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="contactEmail" name="email">
+                            <div class="invalid-feedback" id="emailError"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactMessage" class="form-label">Message:</label>
+                            <textarea class="form-control" id="contactMessage" name="message" rows="3"></textarea>
+                            <div class="invalid-feedback" id="messageError"></div>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="privacyConsent" name="consent">
+                            <label class="form-check-label" for="privacyConsent">
+                                I consent to the use of my submitted information for contact purposes, agreeing to the data privacy policy.
+                            </label>
+                            <div class="invalid-feedback" id="consentError" style="display: none;">You must agree to the data privacy consent.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use a Java array and loop ; dynamically generate movie information (simulated JS5)
+        var movies = [
+            {
+                id: 1,
+                title: "Umamusume Pretty Derby: Beginning of a New Era",
+                releaseDate: "May 24, 2024 (Japan)",
+                runtime: "Approx. 1 hour 48 minutes",
+                showtime: "| 7.30 A.M. | 10.30 A.M. | 13.30 P.M. | 16.30 P.M. |",
+                cast: "Azumi Waki (Narita Top Road), Hina Tachibana (Admire Vega), Yukina Shuto (T.M. Opera O), Yuina Suzuki (Mayano Top Gun)",
+                synopsis: "The story follows Narita Top Road, T.M. Opera O, and Admire Vega—three rival Umamusume aiming to prove themselves on the grand racing stage. Set in the late 1990s, this movie captures their intense struggles, rivalries, and dreams of becoming the best.",
+                info: "Directed by Kei Oikawa, this film is based on the popular multimedia franchise Umamusume Pretty Derby. It celebrates the spirit of competition and friendship, with a story inspired by real-life Japanese racehorses.",
+                trailerUrl: "https://www.youtube.com/watch?v=aazlzZa3ZW0",
+                websiteUrl: "https://umamusume.jp/anime/movie/",
+                imageUrl: "https://m.media-amazon.com/images/M/MV5BNmI1ZDI0OGEtY2JjYS00MWQyLWI5ZTctMTg4ODI0YTMyZGU5XkEyXkFqcGc@._V1_SL1024_.jpg",
+                popoverContent: "An exciting anime film about competitive horse girls!",
+                popoverTitle: "Umamusume"
+            },
+            {
+                id: 2,
+                title: "Inception",
+                releaseDate: "July 16, 2010 (US)",
+                runtime: "2 hours 28 minutes",
+                showtime: "| 9.30 A.M. | 11.30 A.M. | 18.45 P.M. | 20.15 P.M |",
+                cast: "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page",
+                synopsis: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
+                info: "Directed by Christopher Nolan, Inception is a groundbreaking science fiction action film known for its complex narrative and visual effects. Winner of four Academy Awards.",
+                trailerUrl: "https://www.youtube.com/watch?v=YoHD9XEInc0",
+                websiteUrl: "https://www.warnerbros.com/movies/inception",
+                imageUrl: "https://images7.alphacoders.com/518/518783.jpg",
+                popoverContent: "A mind-bending sci-fi thriller from Christopher Nolan.",
+                popoverTitle: "Inception"
+            },
+            {
+                id: 3,
+                title: "Dune: Part Two",
+                releaseDate: "March 1, 2024 (US)",
+                runtime: "2 hours 46 minutes",
+                showtime: "| 8.30 A.M. | 10.50 A.M. | 17.35 P.M. | 19.20 P.M |",
+                cast: "Timothée Chalamet, Zendaya, Rebecca Ferguson",
+                synopsis: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+                info: "The second part of Denis Villeneuve's epic adaptation of Frank Herbert's novel. Critically acclaimed for its scale, cinematography, and score.",
+                trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
+                websiteUrl: "https://www.dunemovie.com/",
+                imageUrl: "https://cdn.theplaylist.net/wp-content/uploads/2023/05/03103744/Dune-part-Two-.jpg",
+                popoverContent: "The epic continuation of Paul Atreides' journey on Arrakis.",
+                popoverTitle: "Dune: Part Two"
+            },
+            {
+                id: 4,
+                title: "Parasite (Gisaengchung)",
+                releaseDate: "May 30, 2019 (South Korea)",
+                runtime: "2 hours 12 minutes",
+	    showtime: "| 7.10 A.M. | 9.35 A.M. | 14.55 P.M. | 19.05 P.M |",
+                cast: "Song Kang-ho, Choi Woo-shik, Park So-dam",
+                synopsis: "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",
+                info: "Directed by Bong Joon-ho, this black comedy thriller made history as the first non-English language film to win the Academy Award for Best Picture.",
+                trailerUrl: "https://www.youtube.com/watch?v=5xH0dCjN3D4",
+                websiteUrl: "https://www.neonrated.com/films/parasite",
+                imageUrl: "https://w0.peakpx.com/wallpaper/191/587/HD-wallpaper-movie-parasite.jpg",
+                popoverContent: "The Oscar-winning thriller about class warfare.",
+                popoverTitle: "Parasite"
+            }
+        ];
+
+        // Function to dynamically generate movie listings and carousel
+        function generateMovieContent() {
+            var listingsHtml = "";
+            var carouselInnerHtml = "";
+            var carouselIndicatorsHtml = "";
+            var i; // ES5 style loop variable
+
+            for (i = 0; i < movies.length; i++) {
+                var movie = movies[i];
+                var isActive = (i === 0) ? 'active' : '';
+
+                // Generate Movie Card for Now Showing Section
+                listingsHtml +=
+                    '<div class="col">' +
+                        '<div class="card movie-card shadow-sm" data-movie-id="' + movie.id + '" data-bs-toggle="modal" data-bs-target="#movieDetailsModal" ' +
+                            'data-bs-placement="top" data-bs-title="' + movie.popoverTitle + '" data-bs-content="' + movie.popoverContent + '">' +
+                            '<img src="' + movie.imageUrl + '" class="card-img-top movie-poster-card" alt="' + movie.title + ' Poster">' +
+                            '<div class="card-body">' +
+                                '<h5 class="card-title text-truncate">' + movie.title + '</h5>' +
+                                '<p class="card-text"><small class="text-muted">Release: ' + movie.releaseDate.split('(')[0].trim() + '</small></p>' +
+                                '<button type="button" class="btn btn-sm btn-outline-primary w-100" data-movie-id="' + movie.id + '" data-bs-toggle="modal" data-bs-target="#movieDetailsModal">View Details</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+
+                // Generate Carousel Slide
+                carouselInnerHtml +=
+                    '<div class="carousel-item ' + isActive + '">' +
+                        '<img src="' + movie.imageUrl.replace('400/600', '1200/500') + '" class="d-block w-100" alt="' + movie.title + '..." style="height: 500px; object-fit: cover; filter: brightness(50%);">' +
+                        '<div class="carousel-caption d-none d-md-block">' +
+                            '<h5>' + movie.title + '</h5>' +
+                            '<p>' + movie.synopsis.substring(0, 100) + '...</p>' +
+                        '</div>' +
+                    '</div>';
+                
+                // Generate Carousel Indicator
+                carouselIndicatorsHtml +=
+                    '<button type="button" data-bs-target="#movieCarousel" data-bs-slide-to="' + i + '" class="' + isActive + '" aria-current="' + (i === 0) + '" aria-label="Slide ' + (i + 1) + '"></button>';
+            }
+
+            // Insert generated HTML into the DOM
+            document.getElementById('movie-listings').innerHTML = listingsHtml;
+            document.querySelector('#movieCarousel .carousel-inner').innerHTML = carouselInnerHtml;
+            document.querySelector('#movieCarousel .carousel-indicators').innerHTML = carouselIndicatorsHtml;
+        }
+
+        // Function to update the modal content based on the clicked movie
+        function updateMovieDetailsModal(movieId) {
+            var movie = movies.find(function(m) {
+                return m.id == movieId; // Using == for simple comparison
+            });
+
+            if (movie) {
+                // Update text and attributes based on the movie data
+                document.getElementById('movieDetailsModalLabel').textContent = movie.title;
+                document.getElementById('modal-poster').src = movie.imageUrl.replace('400/600', '400/600'); // Keeping the poster size
+                document.getElementById('modal-poster').alt = movie.title + " Poster";
+
+                document.getElementById('modal-release').textContent = movie.releaseDate;
+                document.getElementById('modal-runtime').textContent = movie.runtime;
+                document.getElementById('modal-cast').textContent = movie.cast;
+                document.getElementById('modal-synopsis').textContent = movie.synopsis;
+
+                document.getElementById('modal-info').textContent = movie.info;
+                document.getElementById('modal-trailer').href = movie.trailerUrl;
+                document.getElementById('modal-website').href = movie.websiteUrl;
+            }
+        }
+
+        // User-defined JavaScript Validation Function
+        function validateForm(event) {
+            // Prevent default submission
+            event.preventDefault();
+
+            var name = document.getElementById('contactName').value;
+            var email = document.getElementById('contactEmail').value;
+            var message = document.getElementById('contactMessage').value;
+            var consent = document.getElementById('privacyConsent').checked;
+            var isValid = true;
+
+            // Reset error messages and validation classes
+            var fields = ['contactName', 'contactEmail', 'contactMessage', 'privacyConsent'];
+            fields.forEach(function(id) {
+                document.getElementById(id).classList.remove('is-invalid');
+                var errorEl = document.getElementById(id.replace('contact', '').toLowerCase() + 'Error');
+                if (errorEl) errorEl.style.display = 'none';
+            });
+            document.getElementById('consentError').style.display = 'none';
+
+            // Validation for Name (simple check for empty/too short)
+            if (name.trim().length < 2) {
+                document.getElementById('contactName').classList.add('is-invalid');
+                document.getElementById('nameError').textContent = 'Name must be at least 2 characters.';
+                isValid = false;
+            }
+
+            // Validation for Email (simple format check)
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('contactEmail').classList.add('is-invalid');
+                document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+                isValid = false;
+            }
+
+            // Validation for Message (cannot be empty)
+            if (message.trim() === "") {
+                document.getElementById('contactMessage').classList.add('is-invalid');
+                document.getElementById('messageError').textContent = 'Message cannot be empty.';
+                isValid = false;
+            }
+
+            // Mandatory Checkbox Validation
+            if (!consent) {
+                document.getElementById('privacyConsent').classList.add('is-invalid');
+                document.getElementById('consentError').style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Form is valid, proceed with submission (e.g., AJAX call)
+                alert("Form submitted successfully! Thank you, " + name + ".");
+                // For this example, we close the modal and reset the form
+                $('#contactModal').modal('hide');
+                document.getElementById('contactForm').reset();
+            }
+        }
+
+
+        // Initialization on Document Ready
+        $(document).ready(function() {
+            // 1. Generate Movie Content
+            generateMovieContent();
+
+            // 2. Initialize Tooltips and Popovers
+            // Select all movie cards and initialize popovers on them
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('.movie-card'));
+            popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl, {
+                    trigger: 'hover', // Tooltips/Popovers on hover
+                    placement: 'auto'
+                });
+            });
+
+            // 3. Attach Movie Details Modal Logic
+            var movieDetailsModal = document.getElementById('movieDetailsModal');
+            movieDetailsModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                var button = event.relatedTarget;
+                // Extract info from data-movie-id attribute
+                var movieId = button.getAttribute('data-movie-id');
+                // Update the modal's content.
+                updateMovieDetailsModal(movieId);
+            });
+
+            // 4. Attach Contact Form Validation
+            document.getElementById('contactForm').addEventListener('submit', validateForm);
+            
+            // 5. Smooth Navigation (jQuery Transition Simulation)
+            $('a[href^="#"]').on('click', function(e) {
+                // Check if the link is not the modal trigger
+                if (!$(this).data('bs-toggle')) {
+                    // prevent default anchor click behavior
+                    e.preventDefault();
+                    // store hash
+                    var hash = this.hash;
+                    // animate
+                    $('html, body').animate({
+                        scrollTop: $(hash).offset().top - 55 // -55 for fixed navbar height
+                    }, 500, function(){
+                        // when done, add hash to url
+                        window.location.hash = hash;
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
+
+
